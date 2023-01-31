@@ -10,13 +10,12 @@ import { prisma } from "../../../server/db";
 export const authOptions: NextAuthOptions = {
   // Include user.id on session
   callbacks: {
-     jwt({ token, account }) {
-      // Persist the OAuth access_token and or the user id to the token right after signin
-      if (account) {
-        token.accessToken = account.access_token
+    session: ({ session, token }) => {
+      if (session?.user && token?.sub) {
+        session.user.id = token.sub ;
       }
-      return token
-    }
+      return session;
+    },
   },
   // Configure one or more authentication providers
   adapter: PrismaAdapter(prisma),
@@ -35,10 +34,10 @@ export const authOptions: NextAuthOptions = {
         params: {
           prompt: "consent",
           access_type: "offline",
-          response_type: "code"
-        }
+          response_type: "code",
+        },
       },
-    })
+    }),
     /**
      * ...add more providers here
      *

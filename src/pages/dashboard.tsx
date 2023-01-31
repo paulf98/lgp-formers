@@ -4,7 +4,10 @@ import Head from "next/head";
 import { api } from "../utils/api";
 
 const Dashboard: NextPage = () => {
-  const { data: sessionData } = useSession();
+  const session = useSession();
+  const user = api.user.findUser.useQuery({
+    userId: session.data?.user?.id || "",
+  });
   const schools = api.school.list.useQuery();
   const createSchoolMutation = api.school.createSchool.useMutation({
     onSuccess: () => {
@@ -12,6 +15,12 @@ const Dashboard: NextPage = () => {
     },
   });
   const deleteSchoolMutation = api.school.deleteSchool.useMutation({
+    onSuccess: () => {
+      void schools.refetch();
+    },
+  });
+
+  const addSchoolToUserMutation = api.user.addSchool.useMutation({
     onSuccess: () => {
       void schools.refetch();
     },
@@ -30,6 +39,15 @@ const Dashboard: NextPage = () => {
     });
   };
 
+  console.log(user.data);
+
+  const addSchoolToUser = () => {
+    addSchoolToUserMutation.mutate({
+      userId: user.data?.id || "",
+      schoolId: schools?.data?.[0]?.id || "",
+    });
+  };
+
   return (
     <>
       <Head>
@@ -41,24 +59,28 @@ const Dashboard: NextPage = () => {
         <h1 className="text-4xl font-bold">Welcome to LGP Formers</h1>
         <div className="flex flex-col items-center justify-center gap-4">
           <p className="text-center text-2xl">
-            {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
+            {session.data && (
+              <span>Logged in as {session.data.user?.name}</span>
+            )}
           </p>
           <button
             className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-            onClick={sessionData ? () => void signOut() : () => void signIn()}
+            onClick={session.data ? () => void signOut() : () => void signIn()}
           >
-            {sessionData ? "Sign out" : "Sign in"}
+            {session.data ? "Sign out" : "Sign in"}
           </button>
           <button onClick={() => addTestSchool()}>Add Test School</button>
           {schools.data?.map((school) => (
-            <>
-              <p key={school.id}>{school.name}</p>
+            <div key={school.id}>
+              <p>{school.name}</p>
               <button onClick={() => deleteSchool(school.id)}>
                 Delete Entry
               </button>
-            </>
+            </div>
           ))}
         </div>
+        <>{user.data?.name}</>
+        <button onClick={() => addSchoolToUser()}>Add School to User</button>
       </main>
     </>
   );
