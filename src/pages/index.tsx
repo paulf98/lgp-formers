@@ -23,17 +23,37 @@ export default Home;
 
 const AuthShowcase: React.FC = () => {
   const { data: sessionData } = useSession();
+  const schools = api.school.list.useQuery();
+  const createSchoolMutation = api.school.createSchool.useMutation({
+    onSuccess: () => {
+      console.log("School created");
+      void schools.refetch();
+    },
+  });
+  const deleteSchoolMutation = api.school.deleteSchool.useMutation({
+    onSuccess: () => {
+      console.log("School deleted");
+      void schools.refetch();
+    },
+  });
 
-  const { data: secretMessage } = api.example.getSecretMessage.useQuery(
-    undefined, // no input
-    { enabled: sessionData?.user !== undefined }
-  );
+  const addTestSchool = () => {
+    createSchoolMutation.mutate({
+      name: "Test School",
+      location: "Test Address",
+    });
+  };
+
+  const deleteSchool = (id: string) => {
+    deleteSchoolMutation.mutate({
+      id,
+    });
+  };
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <p className="text-center text-2xl">
         {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
-        {secretMessage && <span> - {secretMessage}</span>}
       </p>
       <button
         className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
@@ -41,6 +61,13 @@ const AuthShowcase: React.FC = () => {
       >
         {sessionData ? "Sign out" : "Sign in"}
       </button>
+      <button onClick={() => addTestSchool()}>Add Test School</button>
+      {schools.data?.map((school) => (
+        <>
+          <p key={school.id}>{school.name}</p>
+          <button onClick={() => deleteSchool(school.id)}>Delete Entry</button>
+        </>
+      ))}
     </div>
   );
 };
