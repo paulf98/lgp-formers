@@ -21,10 +21,10 @@ model Teacher {
   employedAt   DateTime
   unemployedAt DateTime?
   subjects     Subject[]
-  user         User      @relation(fields: [userId], references: [id])
   school       School    @relation(fields: [schoolId], references: [id])
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+  User         User[]
 }
 
 model Student {
@@ -32,10 +32,10 @@ model Student {
   schoolId         String
   userId           String
   yearOfGraduation Int
-  user             User     @relation(fields: [userId], references: [id])
   school           School   @relation(fields: [schoolId], references: [id])
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  User             User[]
 }
 
 model Subject {
@@ -54,8 +54,9 @@ model School {
   location  String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  Student   Student[]
+  User      User[]
   Teacher   Teacher[]
+  Student   Student[]
 }
 
 // Necessary for Next auth
@@ -93,8 +94,12 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  Teacher       Teacher[]
-  Student       Student[]
+  Teacher       Teacher?  @relation(fields: [teacherId], references: [id])
+  Student       Student?  @relation(fields: [studentId], references: [id])
+  School        School?   @relation(fields: [schoolId], references: [id])
+  schoolId      String?
+  teacherId     String?
+  studentId     String?
 }
 
 model VerificationToken {
