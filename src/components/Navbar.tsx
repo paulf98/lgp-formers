@@ -1,4 +1,4 @@
-import Image from "next/image";
+// import Image from "next/image";
 import Link from "next/link";
 
 export default function Navbar() {
@@ -32,7 +32,7 @@ export default function Navbar() {
         aria-label="Sidebar"
       >
         <div className="h-full overflow-y-auto bg-gray-50 px-3 py-4 dark:bg-gray-800">
-          <a
+          {/* <a
             href="https://flowbite.com/"
             className="mb-5 flex items-center pl-2.5"
           >
@@ -46,7 +46,7 @@ export default function Navbar() {
             <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
               Flowbite
             </span>
-          </a>
+          </a> */}
           <ul className="space-y-2">
             <li>
               <Link
