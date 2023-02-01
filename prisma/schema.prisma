@@ -6,12 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-  // Further reading:
-  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model Teacher {
@@ -25,6 +22,8 @@ model Teacher {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   User         User[]
+
+  @@index([schoolId])
 }
 
 model Student {
@@ -36,6 +35,8 @@ model Student {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   User             User[]
+
+  @@index([schoolId])
 }
 
 model Subject {
@@ -46,6 +47,8 @@ model Subject {
   updatedAt DateTime @updatedAt
   Teacher   Teacher? @relation(fields: [teacherId], references: [id])
   teacherId String?
+
+  @@index([teacherId])
 }
 
 model School {
@@ -66,16 +69,17 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? // @db.Text
-  access_token      String? // @db.Text
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? // @db.Text
+  id_token          String? @db.Text
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -84,6 +88,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model User {
@@ -100,6 +106,10 @@ model User {
   schoolId      String?
   teacherId     String?
   studentId     String?
+
+  @@index([studentId])
+  @@index([teacherId])
+  @@index([schoolId])
 }
 
 model VerificationToken {
