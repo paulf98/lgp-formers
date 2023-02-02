@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Landmark, LayoutDashboard, User } from "lucide-react";
 import { useRouter } from "next/router";
 import { signIn, signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 
 export default function Navbar() {
   const router = useRouter();
@@ -56,21 +57,24 @@ export default function Navbar() {
         aria-label="Sidebar"
       >
         <div className="h-full overflow-y-auto bg-gray-50 px-3 py-4 dark:bg-gray-800">
-          {/* <a
-            href="https://flowbite.com/"
-            className="mb-5 flex items-center pl-2.5"
-          >
-            <Image
-              src="https://flowbite.com/docs/images/logo.svg"
-              className="mr-3 h-6 sm:h-7"
-              alt="Flowbite Logo"
-              width={24}
-              height={24}
-            />
-            <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-              Flowbite
-            </span>
-          </a> */}
+          {session.data && session.data.user && (
+            <div className="mb-4 flex w-full items-center p-2">
+              {session.data.user.image ? (
+                <Image
+                  className="h-6 w-6 rounded-full"
+                  src={session.data.user.image}
+                  width={24}
+                  height={24}
+                  alt={`Image of ${session.data.user.name || "a user"}`}
+                />
+              ) : (
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-white">
+                  <User size={20} />
+                </div>
+              )}
+              <span className="ml-3 font-medium">{session.data.user.name}</span>
+            </div>
+          )}
           <div className="space-y-2">
             {navItems.map((item) => (
               <NavItem
@@ -80,12 +84,18 @@ export default function Navbar() {
               />
             ))}
           </div>
-          <button
-            className="fixed bottom-2 left-0 w-full p-4 text-center underline"
-            onClick={session.data ? () => void signOut() : () => void signIn()}
-          >
-            {session.data ? "Sign out" : "Sign in"}
-          </button>
+          {session.data && session.data.user && (
+            <div className="fixed bottom-2 left-0 flex w-full flex-col items-center p-4">
+              <button
+                className="text-red-700 underline"
+                onClick={
+                  session.data ? () => void signOut() : () => void signIn()
+                }
+              >
+                {session.data ? "Sign out" : "Sign in"}
+              </button>
+            </div>
+          )}
         </div>
       </aside>
     </>
