@@ -2,15 +2,17 @@
 import Link from "next/link";
 import { Landmark, LayoutDashboard } from "lucide-react";
 import { useRouter } from "next/router";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 export default function Navbar() {
   const router = useRouter();
+  const session = useSession();
 
   const navItems: NavItemProps[] = [
     {
       name: "Dashboard",
       icon: <LayoutDashboard />,
-      href: "/dashboard",
+      href: "/",
     },
     {
       name: "Schools",
@@ -73,6 +75,12 @@ export default function Navbar() {
               />
             ))}
           </div>
+          <button
+            className="fixed bottom-2 left-0 w-full p-4 text-center underline"
+            onClick={session.data ? () => void signOut() : () => void signIn()}
+          >
+            {session.data ? "Sign out" : "Sign in"}
+          </button>
         </div>
       </aside>
     </>
