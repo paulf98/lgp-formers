@@ -4,7 +4,12 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const schoolRouter = createTRPCRouter({
   list: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.school.findMany();
+    return ctx.prisma.school.findMany({
+      include: {
+        Student: true,
+        Teacher: true,
+      },
+    });
   }),
   createSchool: protectedProcedure
     .input(z.object({ name: z.string(), location: z.string() }))

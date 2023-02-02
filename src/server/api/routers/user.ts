@@ -26,7 +26,7 @@ export const userRouter = createTRPCRouter({
       },
     });
   }),
-  addSchool: protectedProcedure
+  mapSchool: protectedProcedure
     .input(z.object({ userId: z.string(), schoolId: z.string() }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.user.update({
@@ -35,6 +35,18 @@ export const userRouter = createTRPCRouter({
         },
         data: {
           schoolId: input.schoolId,
+        },
+      });
+    }),
+  removeSchool: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.user.update({
+        where: {
+          id: input.userId,
+        },
+        data: {
+          schoolId: null,
         },
       });
     }),

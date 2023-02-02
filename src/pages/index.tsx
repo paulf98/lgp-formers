@@ -11,6 +11,7 @@ const Home: NextPage = () => {
   const [studentInput, setStudentInput] = useState({
     yearOfGraduation: new Date().getFullYear(),
   });
+  const [schoolInput, setSchoolInput] = useState("");
 
   const createStudentMutation = api.student.createStudent.useMutation({
     onSuccess: () => {
@@ -21,15 +22,10 @@ const Home: NextPage = () => {
   const user = api.user.findUser.useQuery({
     userId: session.data?.user?.id || "",
   });
-  console.log(user.data);
+
+  const schools = api.school.list.useQuery();
 
   const addToSchoolAsStudent = () => {
-    console.log("Starting mutation");
-    console.log(
-      studentInput.yearOfGraduation,
-      session.data?.user?.id,
-      user.data?.School?.id
-    );
     createStudentMutation.mutate({
       yearOfGraduation: studentInput.yearOfGraduation,
       userId: session.data?.user?.id || "",
@@ -41,8 +37,29 @@ const Home: NextPage = () => {
     console.log("Add to school as teacher");
   };
 
-  const selectSchool = () => {
-    console.log("Select school");
+  const mapSchoolToUserMutation = api.user.mapSchool.useMutation({
+    onSuccess: () => {
+      void user.refetch();
+      void schools.refetch();
+    },
+  });
+  const selectSchool = (id: string) => {
+    mapSchoolToUserMutation.mutate({
+      userId: session.data?.user?.id || "",
+      schoolId: id,
+    });
+  };
+
+  const removeSchoolFromUserMutation = api.user.removeSchool.useMutation({
+    onSuccess: () => {
+      void user.refetch();
+      void schools.refetch();
+    },
+  });
+  const removeSchoolFromCurrentUser = () => {
+    removeSchoolFromUserMutation.mutate({
+      userId: session.data?.user?.id || "",
+    });
   };
 
   return (
@@ -52,16 +69,24 @@ const Home: NextPage = () => {
         <meta name="description" content="" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex min-h-screen flex-col items-center p-4">
-        <h1 className="text-4xl font-bold">Welcome to LGP Formers</h1>
-
+      <main className="w-100 flex min-h-screen flex-col items-center p-4">
         <div className="h-4"></div>
         {user.data?.School ? (
           <>
-            <p>
-              You went to school: {user.data.School.name},{" "}
-              {user.data.School.location}
-            </p>
+            <p>You went to school at:</p>
+            <div
+              key={user.data.School.id}
+              className="relative mb-2 w-96 border p-2 hover:cursor-pointer hover:bg-gray-100"
+            >
+              <p>
+                {user.data.School.name}
+                <br />
+                <span className="text-gray-500">
+                  {user.data.School.location}
+                </span>
+              </p>
+            </div>
+            <button onClick={removeSchoolFromCurrentUser}>Remove school</button>
             <div className="h-4"></div>
 
             {user.data?.Student ? (
@@ -106,8 +131,47 @@ const Home: NextPage = () => {
           </>
         ) : (
           <>
-            <p>No school selected yet.</p>
-            <Button label="Select a school" onClick={selectSchool} />
+            <p className="mb-4 text-xl font-medium">
+              Let&apos;s find the school you went to.
+            </p>
+
+            {schools.data?.length ? (
+              <div className="flex w-96 flex-col">
+                <Input
+                  label="Search school"
+                  value={schoolInput}
+                  onChange={(e) => setSchoolInput(e.target.value)}
+                  placeholder="Search school by name or location"
+                />
+                {schools.data
+                  .filter(
+                    (school) =>
+                      school.name
+                        .toLowerCase()
+                        .includes(schoolInput.toLowerCase()) ||
+                      school.location
+                        .toLowerCase()
+                        .includes(schoolInput.toLowerCase())
+                  )
+                  .map((school) => (
+                    <div
+                      key={school.id}
+                      className="relative mb-2 border p-2 hover:cursor-pointer hover:bg-gray-100"
+                      onClick={() => selectSchool(school.id)}
+                    >
+                      <p>
+                        {school.name}
+                        <br />
+                        <span className="text-gray-500">{school.location}</span>
+                      </p>
+
+                      <span className="absolute top-2 right-2 rounded border border-green-400 bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-gray-700 dark:text-green-400">
+                        {school.Student.length + school.Teacher.length} Members
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            ) : null}
           </>
         )}
       </main>
