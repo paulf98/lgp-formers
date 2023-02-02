@@ -10,12 +10,19 @@ export const userRouter = createTRPCRouter({
         where: {
           id: input.userId,
         },
+        include: {
+          School: true,
+          Student: true,
+          Teacher: true,
+        },
       });
     }),
   listUsers: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.user.findMany({
       include: {
         School: true,
+        Student: true,
+        Teacher: true,
       },
     });
   }),
