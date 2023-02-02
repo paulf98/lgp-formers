@@ -12,6 +12,13 @@ export const userRouter = createTRPCRouter({
         },
       });
     }),
+  listUsers: protectedProcedure.query(({ ctx }) => {
+    return ctx.prisma.user.findMany({
+      include: {
+        School: true,
+      },
+    });
+  }),
   addSchool: protectedProcedure
     .input(z.object({ userId: z.string(), schoolId: z.string() }))
     .mutation(({ ctx, input }) => {

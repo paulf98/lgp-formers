@@ -1,6 +1,6 @@
 // import Image from "next/image";
 import Link from "next/link";
-import { Landmark, LayoutDashboard } from "lucide-react";
+import { Landmark, LayoutDashboard, User } from "lucide-react";
 import { useRouter } from "next/router";
 import { signIn, signOut, useSession } from "next-auth/react";
 
@@ -18,6 +18,11 @@ export default function Navbar() {
       name: "Schools",
       icon: <Landmark />,
       href: "/schools",
+    },
+    {
+      name: "Users",
+      icon: <User />,
+      href: "/users",
     },
   ];
 
