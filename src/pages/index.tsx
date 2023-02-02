@@ -93,7 +93,7 @@ const Home: NextPage = () => {
             <div className="h-4"></div>
 
             {user.data?.Teacher ? (
-              <p>Was there as a teacher {user.data.Teacher}</p>
+              <p>Was there as a teacher {user.data.Teacher.id}</p>
             ) : (
               <>
                 <p>Was not there as teacher.</p>
