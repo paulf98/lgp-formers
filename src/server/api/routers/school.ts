@@ -1,20 +1,8 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const schoolRouter = createTRPCRouter({
-  hello: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
-      return {
-        greeting: `Hello ${input.text}`,
-      };
-    }),
-
-  // getAll: publicProcedure.query(({ ctx }) => {
-  //   return ctx.prisma.example.findMany();
-  // }),
-
   list: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.school.findMany();
   }),
@@ -27,8 +15,7 @@ export const schoolRouter = createTRPCRouter({
           location: input.location,
         },
       });
-    }
-  ),
+    }),
   deleteSchool: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(({ ctx, input }) => {
@@ -37,6 +24,5 @@ export const schoolRouter = createTRPCRouter({
           id: input.id,
         },
       });
-    }
-  ),
+    }),
 });
