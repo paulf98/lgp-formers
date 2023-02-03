@@ -19,23 +19,26 @@ model Teacher {
   employedAt   DateTime
   unemployedAt DateTime?
   subjects     Subject[]
-  school       School    @relation(fields: [schoolId], references: [id])
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  User         User[]
+  school       School    @relation(fields: [schoolId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  User         User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([schoolId])
+  @@index([userId])
 }
 
 model Student {
-  id               String   @id @default(cuid())
-  schoolId         String
-  userId           String
-  yearOfGraduation Int
-  school           School   @relation(fields: [schoolId], references: [id])
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  User             User[]
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  schoolId      String   @unique
+  startedInYear Int
+  leftInYear    Int
+  graduated     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  school        School   @relation(fields: [schoolId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  User          User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([schoolId])
 }
@@ -58,7 +61,6 @@ model School {
   location  String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  User      User[]
   Teacher   Teacher[]
   Student   Student[]
 }
@@ -101,16 +103,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  Teacher       Teacher?  @relation(fields: [teacherId], references: [id])
-  Student       Student?  @relation(fields: [studentId], references: [id])
-  School        School?   @relation(fields: [schoolId], references: [id])
-  schoolId      String?
-  teacherId     String?
-  studentId     String?
-
-  @@index([studentId])
-  @@index([teacherId])
-  @@index([schoolId])
+  Teacher       Teacher[]
+  Student       Student[]
 }
 
 model VerificationToken {

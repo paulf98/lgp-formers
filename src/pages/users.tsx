@@ -16,7 +16,10 @@ const Users: NextPage = () => {
                 User
               </th>
               <th scope="col" className="px-6 py-3">
-                <span className="sr-only">Delete</span>
+                Teacher
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Student
               </th>
             </tr>
           </thead>
@@ -50,8 +53,11 @@ const Users: NextPage = () => {
                     </div>
                   </div>
                 </th>
-                <td className="px-6 py-4 text-right">
-                  {user.School ? user.School.name : "No School"}
+                <td className="px-6 py-4">
+                  {user.Teacher.length > 0 || "No Teacher"}
+                </td>
+                <td className="px-6 py-4">
+                  {user.Student.length > 0 || "No Student"}
                 </td>
               </tr>
             ))}

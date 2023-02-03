@@ -8,59 +8,42 @@ import Input from "../components/Input";
 
 const Home: NextPage = () => {
   const session = useSession();
+
+  const [showDialog, setShowDialog] = useState({
+    student: false,
+    teacher: false,
+  });
   const [studentInput, setStudentInput] = useState({
-    yearOfGraduation: new Date().getFullYear(),
-  });
-  const [schoolInput, setSchoolInput] = useState("");
-
-  const createStudentMutation = api.student.createStudent.useMutation({
-    onSuccess: () => {
-      void user.refetch();
-    },
+    startedInYear: new Date().getFullYear() - 1,
+    leftInYear: new Date().getFullYear(),
+    graduated: false,
+    schoolSearchInput: "",
+    selectedSchoolId: "",
   });
 
-  const user = api.user.findUser.useQuery({
-    userId: session.data?.user?.id || "",
-  });
+  // const createStudentMutation = api.student.createStudent.useMutation({
+  //   onSuccess: () => {
+  //     void user.refetch();
+  //   },
+  // });
+
+  // const user = api.user.findUser.useQuery({
+  //   userId: session.data?.user?.id || "",
+  // });
 
   const schools = api.school.list.useQuery();
 
-  const addToSchoolAsStudent = () => {
-    createStudentMutation.mutate({
-      yearOfGraduation: studentInput.yearOfGraduation,
-      userId: session.data?.user?.id || "",
-      schoolId: user.data?.School?.id || "",
-    });
-  };
+  // const addToSchoolAsStudent = () => {
+  //   createStudentMutation.mutate({
+  //     yearOfGraduation: studentInput.yearOfGraduation,
+  //     userId: session.data?.user?.id || "",
+  //     schoolId: user.data?.School.id || "",
+  //   });
+  // };
 
-  const addToSchoolAsTeacher = () => {
-    console.log("Add to school as teacher");
-  };
-
-  const mapSchoolToUserMutation = api.user.mapSchool.useMutation({
-    onSuccess: () => {
-      void user.refetch();
-      void schools.refetch();
-    },
-  });
-  const selectSchool = (id: string) => {
-    mapSchoolToUserMutation.mutate({
-      userId: session.data?.user?.id || "",
-      schoolId: id,
-    });
-  };
-
-  const removeSchoolFromUserMutation = api.user.removeSchool.useMutation({
-    onSuccess: () => {
-      void user.refetch();
-      void schools.refetch();
-    },
-  });
-  const removeSchoolFromCurrentUser = () => {
-    removeSchoolFromUserMutation.mutate({
-      userId: session.data?.user?.id || "",
-    });
-  };
+  // const addToSchoolAsTeacher = () => {
+  //   console.log("Add to school as teacher");
+  // };
 
   return (
     <>
@@ -69,110 +52,108 @@ const Home: NextPage = () => {
         <meta name="description" content="" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="w-100 flex min-h-screen flex-col items-center p-4">
+      <main className="w-100 flex min-h-screen flex-col p-4">
         <div className="h-4"></div>
-        {user.data?.School ? (
-          <>
-            <p>You went to school at:</p>
-            <div
-              key={user.data.School.id}
-              className="relative mb-2 w-96 border p-2 hover:cursor-pointer hover:bg-gray-100"
-            >
-              <p>
-                {user.data.School.name}
-                <br />
-                <span className="text-gray-500">
-                  {user.data.School.location}
-                </span>
-              </p>
+        <h1 className=" mb-4 text-center text-4xl font-bold">
+          Add a new entry
+        </h1>
+        <p className="mb-2 text-center text-xl font-medium">I was a ...</p>
+        <div className="flex justify-center gap-16 p-4">
+          <Button
+            label="Student"
+            onClick={() => setShowDialog({ teacher: false, student: true })}
+          ></Button>
+          <Button
+            label="Teacher"
+            onClick={() => setShowDialog({ teacher: true, student: false })}
+          ></Button>
+        </div>
+        {showDialog.student && (
+          <div className="flex flex-col gap-4 p-4">
+            <p className="text-xl font-medium">I studied at</p>
+            <Input
+              label="School Name or location"
+              type="text"
+              value={studentInput.schoolSearchInput}
+              onChange={(e) =>
+                setStudentInput({
+                  ...studentInput,
+                  schoolSearchInput: e.target.value,
+                })
+              }
+            />
+            <div>
+              {schools.data
+                ?.filter(
+                  (school) =>
+                    school.name
+                      .toLowerCase()
+                      .includes(studentInput.schoolSearchInput.toLowerCase()) ||
+                    school.location
+                      .toLowerCase()
+                      .includes(studentInput.schoolSearchInput.toLowerCase())
+                )
+                .slice(0, 5)
+                .map((school) => (
+                  <div
+                    key={school.id}
+                    onClick={() =>
+                      setStudentInput({
+                        ...studentInput,
+                        selectedSchoolId: school.id,
+                      })
+                    }
+                  >
+                    {school.name}
+                  </div>
+                ))}
             </div>
-            <button onClick={removeSchoolFromCurrentUser}>Remove school</button>
-            <div className="h-4"></div>
 
-            {user.data?.Student ? (
-              <p>
-                You were there as a student and graduated in{" "}
-                {user.data.Student.yearOfGraduation}
-              </p>
-            ) : (
-              <>
-                <p>Were you there as a student?</p>
-                <Input
-                  label="Year of graduation"
-                  type="number"
-                  value={studentInput.yearOfGraduation}
-                  onChange={(e) =>
-                    setStudentInput({
-                      ...studentInput,
-                      yearOfGraduation: parseInt(e.target.value),
-                    })
-                  }
-                />
-                <Button
-                  label="Add me as a student"
-                  onClick={addToSchoolAsStudent}
-                />
-              </>
-            )}
+            <p className="text-xl font-medium">I started studying in</p>
+            <Input
+              label="Start Year"
+              type="number"
+              value={studentInput.startedInYear}
+              onChange={(e) =>
+                setStudentInput({
+                  ...studentInput,
+                  startedInYear: parseInt(e.target.value),
+                })
+              }
+            />
 
-            <div className="h-4"></div>
+            <p className="text-xl font-medium">I left studying in</p>
+            <Input
+              label="End Year"
+              type="number"
+              value={studentInput.leftInYear}
+              onChange={(e) =>
+                setStudentInput({
+                  ...studentInput,
+                  leftInYear: parseInt(e.target.value),
+                })
+              }
+            />
 
-            {user.data?.Teacher ? (
-              <p>Was there as a teacher {user.data.Teacher.id}</p>
-            ) : (
-              <>
-                <p>Was not there as teacher.</p>
-                <Button
-                  label="Add me as a teacher"
-                  onClick={addToSchoolAsTeacher}
-                />
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            <p className="mb-4 text-xl font-medium">
-              Let&apos;s find the school you went to.
-            </p>
-
-            {schools.data?.length ? (
-              <div className="flex w-96 flex-col">
-                <Input
-                  label="Search school"
-                  value={schoolInput}
-                  onChange={(e) => setSchoolInput(e.target.value)}
-                  placeholder="Search school by name or location"
-                />
-                {schools.data
-                  .filter(
-                    (school) =>
-                      school.name
-                        .toLowerCase()
-                        .includes(schoolInput.toLowerCase()) ||
-                      school.location
-                        .toLowerCase()
-                        .includes(schoolInput.toLowerCase())
-                  )
-                  .map((school) => (
-                    <div
-                      key={school.id}
-                      className="relative mb-2 border p-2 hover:cursor-pointer hover:bg-gray-100"
-                      onClick={() => selectSchool(school.id)}
-                    >
-                      <p>
-                        {school.name}
-                        <br />
-                        <span className="text-gray-500">{school.location}</span>
-                      </p>
-
-                      <span className="absolute top-2 right-2 rounded border border-green-400 bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-gray-700 dark:text-green-400">
-                        {school.Student.length + school.Teacher.length} Members
-                      </span>
-                    </div>
-                  ))}
-              </div>
-            ) : null}
-          </>
+            <p className="text-xl font-medium">Did you graduate?</p>
+            <div className="mb-4 flex items-center">
+              <input
+                id="graduated"
+                type="checkbox"
+                checked={studentInput.graduated}
+                onChange={(e) =>
+                  setStudentInput({
+                    ...studentInput,
+                    graduated: e.target.checked,
+                  })
+                }
+                className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+              />
+              <label className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                Default checkbox
+              </label>
+            </div>
+          </div>
         )}
       </main>
     </>
