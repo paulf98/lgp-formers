@@ -13,3 +13,12 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 - [Prisma](https://prisma.io)
 - [Tailwind CSS](https://tailwindcss.com)
 - [tRPC](https://trpc.io)
+
+# Next steps
+
+- [ ] Add student creation form
+- [ ] Add teacher creation form
+- [ ] Introduce role based access control
+- [ ] Only admins should be allowed to create new schools
+- [ ] Add a view to see all students in a school
+- [ ] Add a view to see all teachers in a school
