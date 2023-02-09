@@ -63,6 +63,12 @@ const Schools: NextPage = () => {
                 Location
               </th>
               <th scope="col" className="px-6 py-3">
+                Students
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Teachers
+              </th>
+              <th scope="col" className="px-6 py-3">
                 <span className="sr-only">Delete</span>
               </th>
             </tr>
@@ -80,6 +86,8 @@ const Schools: NextPage = () => {
                   {school.name}
                 </th>
                 <td className="px-6 py-4">{school.location}</td>
+                <td className="px-6 py-4">{school.Student.length} Students</td>
+                <td className="px-6 py-4">{school.Teacher.length} Teachers</td>
                 <td className="px-6 py-4 text-right">
                   <button
                     onClick={() => deleteSchool(school.id)}
