@@ -18,20 +18,29 @@ const Home: NextPage = () => {
     leftInYear: new Date().getFullYear(),
     graduated: false,
     schoolSearchInput: "",
-    selectedSchoolId: "",
+    schoolId: "",
   });
 
-  // const createStudentMutation = api.student.createStudent.useMutation({
-  //   onSuccess: () => {
-  //     void user.refetch();
-  //   },
-  // });
+  const createStudentMutation = api.student.createStudent.useMutation({
+    onSuccess: () => {
+      void user.refetch();
+    },
+  });
 
-  // const user = api.user.findUser.useQuery({
-  //   userId: session.data?.user?.id || "",
-  // });
+  const user = api.user.findUser.useQuery({
+    userId: session.data?.user?.id || "",
+  });
 
   const schools = api.school.list.useQuery();
+
+  const createNewStudent = () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { schoolSearchInput, ...student } = studentInput;
+    createStudentMutation.mutate({
+      userId: session.data?.user?.id || "",
+      ...student,
+    });
+  };
 
   // const addToSchoolAsStudent = () => {
   //   createStudentMutation.mutate({
@@ -72,7 +81,7 @@ const Home: NextPage = () => {
           <div className="flex flex-col gap-4 p-4">
             <p className="text-xl font-medium">I studied at</p>
             <Input
-              label="School Name or location"
+              label="Search for school Name or location"
               type="text"
               value={studentInput.schoolSearchInput}
               onChange={(e) =>
@@ -95,16 +104,22 @@ const Home: NextPage = () => {
                 )
                 .slice(0, 5)
                 .map((school) => (
-                  <div
-                    key={school.id}
-                    onClick={() =>
-                      setStudentInput({
-                        ...studentInput,
-                        selectedSchoolId: school.id,
-                      })
-                    }
-                  >
-                    {school.name}
+                  <div className="mb-4 flex items-center" key={school.id}>
+                    <input
+                      id="school"
+                      type="checkbox"
+                      checked={studentInput.schoolId === school.id}
+                      onChange={() =>
+                        setStudentInput({
+                          ...studentInput,
+                          schoolId: school.id,
+                        })
+                      }
+                      className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                    />
+                    <label className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                      {school.name} - {school.location}
+                    </label>
                   </div>
                 ))}
             </div>
@@ -150,9 +165,10 @@ const Home: NextPage = () => {
                 className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
               />
               <label className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-                Default checkbox
+                Did you graduate?
               </label>
             </div>
+            <Button label="Submit" onClick={createNewStudent} />
           </div>
         )}
       </main>

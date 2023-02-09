@@ -57,7 +57,7 @@ const Users: NextPage = () => {
                   {user.Teacher.length > 0 || "No Teacher"}
                 </td>
                 <td className="px-6 py-4">
-                  {user.Student.length > 0 || "No Student"}
+                  {user.Student.length > 0 ? user.Student.length : "No Student"}
                 </td>
               </tr>
             ))}

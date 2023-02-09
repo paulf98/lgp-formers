@@ -8,7 +8,9 @@ export const studentRouter = createTRPCRouter({
       z.object({
         userId: z.string(),
         schoolId: z.string(),
-        yearOfGraduation: z.number(),
+        startedInYear: z.number(),
+        leftInYear: z.number(),
+        graduated: z.boolean(),
       })
     )
     .mutation(({ ctx, input }) => {
@@ -16,7 +18,9 @@ export const studentRouter = createTRPCRouter({
         data: {
           userId: input.userId,
           schoolId: input.schoolId,
-          yearOfGraduation: input.yearOfGraduation,
+          startedInYear: input.startedInYear,
+          leftInYear: input.leftInYear,
+          graduated: input.graduated,
         },
       });
     }),
